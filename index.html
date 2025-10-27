@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Payroll Program (Modal Version)</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f1f5f9;
+  display: flex;
+  justify-content: center;
+  padding-top: 40px;
+  margin: 0;
+  filter: grayscale(100%);
+  background-color: #64686b;
+}
+
+/* Container (behind the modal) */
+.container {
+  background: white;
+  padding: 25px 40px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  z-index: 1;
+  position: relative;
+  margin-top: 50px;
+}
+
+h1 { color: #2563eb; }
+
+input[type=text], input[type=number] {
+  padding: 6px 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  display: block;
+  width: 100%;
+}
+
+button {
+  padding: 8px 14px;
+  border: none;
+  background-color: #2563eb;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+  font-weight: bold;
+}
+
+button:hover { background-color: #1d4ed8; }
+
+/* Modal overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(5px); /* blur the background */
+  background: rgba(0,0,0,0.3); /* dark overlay */
+  display: none; /* hidden by default */
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  margin-top: 50px;
+}
+
+/* Modal content */
+.modal-content {
+  background-color: #fff;
+  padding: 20px 30px;
+  border-radius: 8px;
+  width: 350px;
+  max-width: 90%;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  color: #2563eb;
+}
+
+.modal-content p {
+  margin: 4px 0;
+  font-weight: 500;
+}
+
+.value { float: right; color: #111827; }
+.total { color: #dc2626; font-weight: bold; }
+.net { color: #16a34a; font-weight: bold; }
+
+.close-btn {
+  margin-top: 10px;
+  background: #dc2626;
+}
+
+.close-btn:hover {
+  background: #b91c1c;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>GRC Payroll Program</h1>
+  <input id="SchoolNumber" type="text" placeholder="ID Number">
+  <input id="LastName" type="text" placeholder="Last Name">
+  <input id="FirstName" type="text" placeholder="First Name">
+  <input id="MiddleName" type="text" placeholder="Middle Name">
+  <input id="Position" type="text" placeholder="Position">
+  <input id="Rate" type="number" placeholder="Daily Rate">
+  <input id="WorkDays" type="number" placeholder="Days Worked">
+  <button onclick="openForm()">Submit</button>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="myModal">
+  <div class="modal-content">
+    <h2>Payroll Summary</h2>
+    <p><label>ID:</label> <span class="value" id="youridnumber"></span></p>
+    <p><label>Name:</label> <span class="value" id="FullName"></span></p>
+    <p><label>Position:</label> <span class="value" id="yourposition"></span></p>
+    <hr>
+    <p><label>Rate:</label> <span class="value" id="yourrate"></span></p>
+    <p><label>Days Worked:</label> <span class="value" id="yourworkdays"></span></p>
+    <p><label>Gross Pay:</label> <span class="value" id="result1"></span></p>
+    <hr>
+    <h3>Deductions</h3>
+    <p><label>SSS (5%):</label> <span class="value" id="result2"></span></p>
+    <p><label>Pag-Ibig (3%):</label> <span class="value" id="result3"></span></p>
+    <p><label>PhilHealth (2%):</label> <span class="value" id="result4"></span></p>
+    <p><label>Tax (5%):</label> <span class="value" id="result5"></span></p>
+    <p><label>Total Deduction:</label> <span class="value total" id="totalresult"></span></p>
+    <hr>
+    <p><label>Net Pay:</label> <span class="value net" id="totalpay"></span></p>
+    <button class="close-btn" onclick="closeModal()">Close</button>
+  </div>
+</div>
+
+<script>
+function openForm() {
+  const id = document.getElementById("SchoolNumber").value.trim();
+  const last = document.getElementById("LastName").value.trim();
+  const first = document.getElementById("FirstName").value.trim();
+  const middle = document.getElementById("MiddleName").value.trim();
+  const pos = document.getElementById("Position").value.trim();
+  const rate = parseFloat(document.getElementById("Rate").value);
+  const days = parseFloat(document.getElementById("WorkDays").value);
+
+  if (!id || !last || !first || !middle || !pos || isNaN(rate) || isNaN(days)) {
+    alert("Please fill all fields correctly.");
+    return;
+  }
+
+  const gross = rate * days;
+  const sss = gross * 0.05;
+  const pagibig = gross * 0.03;
+  const philhealth = gross * 0.02;
+  const tax = gross * 0.05;
+  const total = sss + pagibig + philhealth + tax;
+  const net = gross - total;
+
+  document.getElementById("youridnumber").textContent = id;
+  document.getElementById("FullName").textContent = `${last}, ${first} ${middle}`;
+  document.getElementById("yourposition").textContent = pos;
+  document.getElementById("yourrate").textContent = `₱${rate.toFixed(2)}`;
+  document.getElementById("yourworkdays").textContent = days;
+  document.getElementById("result1").textContent = `₱${gross.toFixed(2)}`;
+  document.getElementById("result2").textContent = `₱${sss.toFixed(2)}`;
+  document.getElementById("result3").textContent = `₱${pagibig.toFixed(2)}`;
+  document.getElementById("result4").textContent = `₱${philhealth.toFixed(2)}`;
+  document.getElementById("result5").textContent = `₱${tax.toFixed(2)}`;
+  document.getElementById("totalresult").textContent = `₱${total.toFixed(2)}`;
+  document.getElementById("totalpay").textContent = `₱${net.toFixed(2)}`;
+
+  document.getElementById("myModal").style.display = "flex";
+}
+
+// Close modal
+function closeModal() {
+  document.getElementById("myModal").style.display = "none";
+}
+</script>
+
+</body>
+</html>
